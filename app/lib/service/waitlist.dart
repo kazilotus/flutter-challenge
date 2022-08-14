@@ -31,7 +31,7 @@ Future<WaitlistsDataModel?> getWaitlists() async {
   return result;
 }
 
-Future<Waitlist?> createWaitlistEntry(String date, Entry entry) async {
+Future<Waitlist?> postWaitlistEntry(String date, Entry entry) async {
   Waitlist? result;
   try {
     String? endpoint = "${dotenv.env['API_ENDPOINT']}/entry/$date";
@@ -71,6 +71,37 @@ Future<Waitlist?> deleteWaitlistEntry(String date, Entry entry) async {
     }
     final response = await http.delete(
       Uri.parse(endpoint),
+      headers: {HttpHeaders.contentTypeHeader: "application/json"},
+    );
+    if (response.statusCode == 200) {
+      final jason = json.decode(response.body);
+      if (kDebugMode) {
+        print(jason);
+      }
+      result = Waitlist.fromJson(jason);
+    } else {
+      if (kDebugMode) {
+        print("error");
+      }
+    }
+  } catch (e) {
+    log(e.toString());
+  }
+  return result;
+}
+
+Future<Waitlist?> patchWaitlistEntry(String date, Entry entry) async {
+  Waitlist? result;
+  try {
+    String? endpoint = "${dotenv.env['API_ENDPOINT']}/entry/$date/${entry.id}";
+    String data = json.encode(entry);
+    if (kDebugMode) {
+      print(endpoint);
+      print(data);
+    }
+    final response = await http.patch(
+      Uri.parse(endpoint),
+      body: data,
       headers: {HttpHeaders.contentTypeHeader: "application/json"},
     );
     if (response.statusCode == 200) {

@@ -3,7 +3,7 @@ class Entry {
   final String? id;
   final String name;
   final String? service;
-  final bool completed;
+  bool? completed;
 
   Entry(
       {this.id,
@@ -28,6 +28,10 @@ class Entry {
       service: json['service'],
       completed: json['completed'],
     );
+  }
+
+  void setCompleted(bool? status) {
+    completed = status;
   }
 }
 
@@ -65,28 +69,6 @@ class WaitlistsDataModel {
     waitlists.removeWhere((w) => w.date == wl.date);
     waitlists.add(wl);
   }
-
-  // void insert(String date, Entry entry) {
-  //   var waitlist = waitlists.firstWhere(
-  //     (element) => element.date == date,
-  //     orElse: () => null,
-  //   );
-  //   if (waitlist == null) {
-  //     waitlists.add(Waitlist(date: date, entries: []));
-  //     waitlist = waitlists.firstWhere((element) => element.date == date);
-  //   }
-  //   waitlist.entries.add(entry);
-  // }
-
-  // void remove(String date, Entry entry) {
-  //   var waitlist = waitlists.firstWhere(
-  //     (element) => element.date == date,
-  //     orElse: () => null,
-  //   );
-  //   if (waitlist != null) {
-  //     waitlist.entries.removeWhere((item) => item.id == entry.id);
-  //   }
-  // }
 
   int newIndex(String date) {
     var waitlist = waitlists.firstWhere(

@@ -3,6 +3,7 @@ import 'package:app/models/services.dart';
 
 import 'package:app/screens/home.dart';
 import 'package:app/screens/login.dart';
+import 'package:app/screens/search.dart';
 import 'package:app/service/data/waitlists.dart';
 
 import 'package:flutter/material.dart';
@@ -35,6 +36,7 @@ class App extends StatelessWidget {
         routes: {
           '/': (context) => const Login(),
           '/home': (context) => const Home(),
+          '/search': (context) => const Search(),
         },
       ),
     );

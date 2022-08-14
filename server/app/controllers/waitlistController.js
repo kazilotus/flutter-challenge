@@ -7,6 +7,12 @@ exports.list = async (req, res, next) => {
       const { date, entries } = wl;
       return { date, entries }
     })
+            // result = result.map(r => {
+        //     return {
+        //         ...r,
+        //         entries: r.entries.sort((a,b) => a.idx - b.idx)
+        //     }
+        // })
 		return res.json(formatted);
     } catch (err) {
         return next(err);

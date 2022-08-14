@@ -13,8 +13,6 @@ class ListPad extends StatefulWidget {
 }
 
 class _ListPadState extends State<ListPad> {
-  bool _check = false;
-
   String _name = "";
   String? _service = "";
   final TextEditingController _inputController = TextEditingController();
@@ -45,57 +43,11 @@ class _ListPadState extends State<ListPad> {
     );
   }
 
-  Widget _mainBody() {
-    final date = Provider.of<DateModel>(context);
-    final waitlistData = Provider.of<WaitlistsData>(context);
-    final waitlist = waitlistData.waitlistsModel?.waitlists.firstWhere(
-      (waitlist) => waitlist.date == date.getFormatted(),
-      orElse: () => null,
-    );
-    return Container(
-      padding: const EdgeInsets.all(5),
-      clipBehavior: Clip.hardEdge,
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
-        boxShadow: [
-          const BoxShadow(
-            color: Color.fromARGB(255, 27, 27, 27),
-            offset: Offset(0, 0),
-          ),
-          BoxShadow(
-            color: Theme.of(context).scaffoldBackgroundColor.withAlpha(150),
-            spreadRadius: -3.0,
-            blurRadius: 12.0,
-          ),
-        ],
-      ),
-      child: waitlistData.loading ||
-              waitlist == null ||
-              waitlist.entries.length == 0
-          ? Center(
-              child: Text(
-                (waitlistData.loading ? 'Loading' : "Waitlist Empty")
-                    .toUpperCase(),
-                style: TextStyle(
-                  color: Theme.of(context).secondaryHeaderColor,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            )
-          : waitlistData.initialized
-              ? ReorderableListView(
-                  key: Key(date.getFormatted()),
-                  scrollController: _scrollController,
-                  buildDefaultDragHandles: false,
-                  scrollDirection: Axis.vertical,
-                  onReorder: _onReorder,
-                  proxyDecorator: _proxyDecorator,
-                  children: waitlist.entries
-                      .map<Widget>((item) => _cardGenerator(item))
-                      .toList(),
-                )
-              : null,
+  void _scrollDown() {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: const Duration(seconds: 1),
+      curve: Curves.fastOutSlowIn,
     );
   }
 
@@ -145,6 +97,14 @@ class _ListPadState extends State<ListPad> {
     waitlistData.removeWaitlistEntry(date.getFormatted(), entry);
   }
 
+  void _toggleStatus(Entry entry, bool? status) async {
+    final date = Provider.of<DateModel>(context, listen: false);
+    final waitlistData = Provider.of<WaitlistsData>(context, listen: false);
+    entry.setCompleted(status);
+    print(entry.toJson());
+    waitlistData.updateWaitlistEntry(date.getFormatted(), entry);
+  }
+
   void _onReorder(int oldIndex, int newIndex) {
     // setState(() {
     //   if (oldIndex < newIndex) {
@@ -153,17 +113,6 @@ class _ListPadState extends State<ListPad> {
     //   final String todo = _todo.removeAt(oldIndex);
     //   _todo.insert(newIndex, todo);
     // });
-  }
-
-  Widget _addButton(BuildContext context, List<String> services) {
-    return FloatingActionButton(
-      onPressed: () => _openInsertModal(context, services),
-      backgroundColor: Theme.of(context).primaryColor,
-      child: const Icon(
-        Icons.add,
-        color: Colors.white,
-      ),
-    );
   }
 
   void _openInsertModal(BuildContext context, List<String> services) {
@@ -284,6 +233,17 @@ class _ListPadState extends State<ListPad> {
     );
   }
 
+  Widget _addButton(BuildContext context, List<String> services) {
+    return FloatingActionButton(
+      onPressed: () => _openInsertModal(context, services),
+      backgroundColor: Theme.of(context).primaryColor,
+      child: const Icon(
+        Icons.add,
+        color: Colors.white,
+      ),
+    );
+  }
+
   Widget _proxyDecorator(Widget child, int index, Animation<double> animation) {
     return Container(
       decoration: BoxDecoration(
@@ -299,11 +259,57 @@ class _ListPadState extends State<ListPad> {
     );
   }
 
-  void _scrollDown() {
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
-      duration: const Duration(seconds: 1),
-      curve: Curves.fastOutSlowIn,
+  Widget _mainBody() {
+    final date = Provider.of<DateModel>(context);
+    final waitlistData = Provider.of<WaitlistsData>(context);
+    final waitlist = waitlistData.waitlistsModel?.waitlists.firstWhere(
+      (waitlist) => waitlist.date == date.getFormatted(),
+      orElse: () => null,
+    );
+    return Container(
+      padding: const EdgeInsets.all(5),
+      clipBehavior: Clip.hardEdge,
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        boxShadow: [
+          const BoxShadow(
+            color: Color.fromARGB(255, 27, 27, 27),
+            offset: Offset(0, 0),
+          ),
+          BoxShadow(
+            color: Theme.of(context).scaffoldBackgroundColor.withAlpha(150),
+            spreadRadius: -3.0,
+            blurRadius: 12.0,
+          ),
+        ],
+      ),
+      child: waitlistData.loading ||
+              waitlist == null ||
+              waitlist.entries.length == 0
+          ? Center(
+              child: Text(
+                (waitlistData.loading ? 'Loading' : "Waitlist Empty")
+                    .toUpperCase(),
+                style: TextStyle(
+                  color: Theme.of(context).secondaryHeaderColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            )
+          : waitlistData.initialized
+              ? ReorderableListView(
+                  key: Key(date.getFormatted()),
+                  scrollController: _scrollController,
+                  buildDefaultDragHandles: false,
+                  scrollDirection: Axis.vertical,
+                  onReorder: _onReorder,
+                  proxyDecorator: _proxyDecorator,
+                  children: waitlist.entries
+                      .map<Widget>((item) => _cardGenerator(item))
+                      .toList(),
+                )
+              : null,
     );
   }
 
@@ -345,12 +351,11 @@ class _ListPadState extends State<ListPad> {
                 Container(
                   margin: const EdgeInsets.only(left: 10),
                   child: Checkbox(
-                    value: _check,
-                    onChanged: (bool? newValue) {
-                      // setState(() {
-                      //   _check = newValue!;
-                      // });
-                    },
+                    checkColor: Theme.of(context).cardColor,
+                    activeColor: Colors.red.withOpacity(0.8),
+                    value: item.completed,
+                    onChanged: (bool? newValue) =>
+                        _toggleStatus(item, newValue),
                   ),
                 ),
                 Expanded(

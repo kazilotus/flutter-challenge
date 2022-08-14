@@ -16,16 +16,20 @@ class WaitlistsData extends ChangeNotifier {
   }
 
   insertWaitlistEntry(String date, Entry entry) async {
-    Waitlist wl = (await createWaitlistEntry(date, entry))!;
+    Waitlist wl = (await postWaitlistEntry(date, entry))!;
     waitlistsModel!.updateWaitlist(wl);
-    // waitlistsModel?.insert(date, entry);
     notifyListeners();
   }
 
   removeWaitlistEntry(String date, Entry entry) async {
     Waitlist wl = (await deleteWaitlistEntry(date, entry))!;
     waitlistsModel!.updateWaitlist(wl);
-    // waitlistsModel?.remove(date, entry);
+    notifyListeners();
+  }
+
+  updateWaitlistEntry(String date, Entry entry) async {
+    Waitlist wl = (await patchWaitlistEntry(date, entry))!;
+    waitlistsModel!.updateWaitlist(wl);
     notifyListeners();
   }
 }

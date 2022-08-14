@@ -3,8 +3,8 @@ import 'package:app/components/listPad.dart';
 
 import 'package:flutter/material.dart';
 
-class Home extends StatelessWidget {
-  const Home({Key? key}) : super(key: key);
+class Search extends StatelessWidget {
+  const Search({Key? key}) : super(key: key);
 
   final String appTitle = "🐶 Puppy Spa";
 
@@ -17,10 +17,10 @@ class Home extends StatelessWidget {
           title: Text(appTitle),
           actions: <Widget>[
             IconButton(
-              icon: const Icon(Icons.search),
+              icon: const Icon(Icons.home),
               tooltip: 'Logout',
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/search');
+                Navigator.pushReplacementNamed(context, '/home');
               },
             ),
             IconButton(
@@ -38,9 +38,6 @@ class Home extends StatelessWidget {
         body: Column(
           children: const [
             Calendar(),
-            Expanded(
-              child: ListPad(),
-            ),
           ],
         ),
       ),
