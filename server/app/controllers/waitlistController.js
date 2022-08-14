@@ -18,3 +18,20 @@ exports.list = async (req, res, next) => {
         return next(err);
     }
 };
+
+exports.update = async (req, res, next) => {
+    try {
+      const date = req.params.date
+      const data = req.body;
+      const entries = data.entries;
+      wl = await Waitlist.updateOne(
+        { date: date },
+        { $set: {
+          entries: entries
+        } },
+      );
+      return this.list(req, res, next);
+    } catch (err) {
+        return next(err);
+    }
+};

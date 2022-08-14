@@ -9,7 +9,7 @@ class WaitlistsData extends ChangeNotifier {
 
   getWaitlistsData() async {
     loading = true;
-    waitlistsModel = (await getWaitlists())!;
+    waitlistsModel = (await getWaitlists());
     initialized = true;
     loading = false;
     notifyListeners();
@@ -22,6 +22,7 @@ class WaitlistsData extends ChangeNotifier {
   }
 
   removeWaitlistEntry(String date, Entry entry) async {
+    // waitlistsModel!.remove(date, entry);
     Waitlist wl = (await deleteWaitlistEntry(date, entry))!;
     waitlistsModel!.updateWaitlist(wl);
     notifyListeners();
@@ -30,6 +31,12 @@ class WaitlistsData extends ChangeNotifier {
   updateWaitlistEntry(String date, Entry entry) async {
     Waitlist wl = (await patchWaitlistEntry(date, entry))!;
     waitlistsModel!.updateWaitlist(wl);
+    notifyListeners();
+  }
+
+  reorderWaitlistEntry(String date, Waitlist waitlist) async {
+    waitlistsModel = (await patchWaitlist(date, waitlist));
+    waitlistsModel?.updateWaitlist(waitlist);
     notifyListeners();
   }
 }

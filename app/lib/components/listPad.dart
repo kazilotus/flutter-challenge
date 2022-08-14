@@ -93,7 +93,7 @@ class _ListPadState extends State<ListPad> {
   void _removeFromList(Entry entry) async {
     final date = Provider.of<DateModel>(context, listen: false);
     final waitlistData = Provider.of<WaitlistsData>(context, listen: false);
-    print(entry.toJson());
+    // print(entry.toJson());
     waitlistData.removeWaitlistEntry(date.getFormatted(), entry);
   }
 
@@ -106,13 +106,13 @@ class _ListPadState extends State<ListPad> {
   }
 
   void _onReorder(int oldIndex, int newIndex) {
-    // setState(() {
-    //   if (oldIndex < newIndex) {
-    //     newIndex -= 1;
-    //   }
-    //   final String todo = _todo.removeAt(oldIndex);
-    //   _todo.insert(newIndex, todo);
-    // });
+    final date = Provider.of<DateModel>(context, listen: false).getFormatted();
+    final waitlistData = Provider.of<WaitlistsData>(context, listen: false);
+    WaitlistsDataModel wl = waitlistData.waitlistsModel!;
+    wl.reorderWaitlist(date, oldIndex, newIndex);
+    Waitlist orderedWaitlist =
+        wl.waitlists.firstWhere((element) => element.date == date);
+    waitlistData.reorderWaitlistEntry(date, orderedWaitlist);
   }
 
   void _openInsertModal(BuildContext context, List<String> services) {
@@ -260,11 +260,11 @@ class _ListPadState extends State<ListPad> {
   }
 
   Widget _mainBody() {
-    final date = Provider.of<DateModel>(context);
+    final date = Provider.of<DateModel>(context).getFormatted();
     final waitlistData = Provider.of<WaitlistsData>(context);
     final waitlist = waitlistData.waitlistsModel?.waitlists.firstWhere(
-      (waitlist) => waitlist.date == date.getFormatted(),
-      orElse: () => null,
+      (waitlist) => waitlist.date == date,
+      orElse: () => Waitlist(date: date, entries: []),
     );
     return Container(
       padding: const EdgeInsets.all(5),
@@ -284,37 +284,37 @@ class _ListPadState extends State<ListPad> {
           ),
         ],
       ),
-      child: waitlistData.loading ||
-              waitlist == null ||
-              waitlist.entries.length == 0
-          ? Center(
-              child: Text(
-                (waitlistData.loading ? 'Loading' : "Waitlist Empty")
-                    .toUpperCase(),
-                style: TextStyle(
-                  color: Theme.of(context).secondaryHeaderColor,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            )
-          : waitlistData.initialized
-              ? ReorderableListView(
-                  key: Key(date.getFormatted()),
-                  scrollController: _scrollController,
-                  buildDefaultDragHandles: false,
-                  scrollDirection: Axis.vertical,
-                  onReorder: _onReorder,
-                  proxyDecorator: _proxyDecorator,
-                  children: waitlist.entries
-                      .map<Widget>((item) => _cardGenerator(item))
-                      .toList(),
+      child:
+          waitlistData.loading || waitlist == null || waitlist.entries.isEmpty
+              ? Center(
+                  child: Text(
+                    (waitlistData.loading ? 'Loading' : "Waitlist Empty")
+                        .toUpperCase(),
+                    style: TextStyle(
+                      color: Theme.of(context).secondaryHeaderColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 )
-              : null,
+              : waitlistData.initialized
+                  ? ReorderableListView(
+                      key: Key(date),
+                      scrollController: _scrollController,
+                      buildDefaultDragHandles: false,
+                      scrollDirection: Axis.vertical,
+                      onReorder: _onReorder,
+                      proxyDecorator: _proxyDecorator,
+                      children: waitlist.entries
+                          .map<Widget>((item) => _cardGenerator(item))
+                          .toList(),
+                    )
+                  : null,
     );
   }
 
   Widget _cardGenerator(Entry item) {
     // var index = _todo.indexOf(item);
+    print(item.id);
     int idx = item.idx;
     return Dismissible(
       direction: DismissDirection.endToStart,
@@ -361,7 +361,15 @@ class _ListPadState extends State<ListPad> {
                 Expanded(
                   child: GestureDetector(
                     onTap: () {},
-                    child: Text(item.name),
+                    child: Column(children: [
+                      Text("${item.idx} ${item.name}"),
+                      Text("${item.id}",
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            color: Theme.of(context).hintColor,
+                            fontSize: 10,
+                          )),
+                    ]),
                   ),
                 ),
                 Icon(

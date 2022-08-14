@@ -34,6 +34,7 @@ dependencies:
   calendar_timeline: ^1.0.5
   http: ^0.13.5
   flutter_dotenv: ^5.0.2
+  objectid: ^2.1.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

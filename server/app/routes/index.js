@@ -7,6 +7,9 @@ const router = express.Router();
 router.route('/waitlists')
 	.get((...params) => waitlistCtrl.list(...params))
 
+	router.route('/waitlist/:date')
+	.patch((...params) => waitlistCtrl.update(...params))
+
 router.route('/entry/:date')
 	.post((...params) => entryCtrl.create(...params));
 
