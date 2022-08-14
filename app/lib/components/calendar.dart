@@ -1,6 +1,8 @@
+import 'package:app/models/date.dart';
 import 'package:flutter/material.dart';
 
 import 'package:calendar_timeline/calendar_timeline.dart';
+import 'package:provider/provider.dart';
 
 class Calendar extends StatefulWidget {
   const Calendar({Key? key}) : super(key: key);
@@ -10,34 +12,21 @@ class Calendar extends StatefulWidget {
 }
 
 class _CalendarState extends State<Calendar> {
-  late DateTime _selectedDate;
-
-  @override
-  void initState() {
-    super.initState();
-    _resetSelectedDate();
-  }
-
-  void _resetSelectedDate() {
-    _selectedDate = DateTime.now().add(
-      const Duration(days: 0),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final DateModel dateModel = Provider.of<DateModel>(context, listen: false);
     return Container(
       margin: const EdgeInsets.only(top: 25, bottom: 25),
       child: CalendarTimeline(
         // showYears: true,
-        initialDate: _selectedDate,
+        initialDate: dateModel.get(),
         firstDate: DateTime.now().subtract(
           const Duration(days: 365 * 4),
         ),
         lastDate: DateTime.now().add(
           const Duration(days: 365 * 4),
         ),
-        onDateSelected: (date) => setState(() => _selectedDate = date),
+        onDateSelected: (date) => dateModel.set(date),
         leftMargin: (MediaQuery.of(context).size.width - 60) / 2,
         monthColor: Colors.white70,
         dayColor: Colors.teal[200],

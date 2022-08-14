@@ -1,14 +1,19 @@
+import 'package:app/models/date.dart';
 import 'package:app/models/services.dart';
 
 import 'package:app/screens/home.dart';
 import 'package:app/screens/login.dart';
+import 'package:app/service/data/waitlists.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import 'package:provider/provider.dart';
 
 import 'common/theme.dart';
 
-void main() {
+Future main() async {
+  await dotenv.load(fileName: ".env");
   runApp(const App());
 }
 
@@ -19,20 +24,9 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        // In this sample app, CatalogModel never changes, so a simple Provider
-        // is sufficient.
         Provider(create: (context) => ServiceModel()),
-        // CartModel is implemented as a ChangeNotifier, which calls for the use
-        // of ChangeNotifierProvider. Moreover, CartModel depends
-        // on CatalogModel, so a ProxyProvider is needed.
-        // ChangeNotifierProxyProvider<CatalogModel, CartModel>(
-        //   create: (context) => CartModel(),
-        //   update: (context, catalog, cart) {
-        //     if (cart == null) throw ArgumentError.notNull('cart');
-        //     cart.catalog = catalog;
-        //     return cart;
-        //   },
-        // ),
+        ChangeNotifierProvider(create: (context) => DateModel()),
+        ChangeNotifierProvider(create: (context) => WaitlistsData())
       ],
       child: MaterialApp(
         title: 'Puppy Spa',

@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const entrySchema = mongoose.Schema({
+    idx: {
+        type: Number,
+        default: 0,
+    },
     name: {
         type: String,
         // required: [true, 'You should enter a name'],
@@ -39,7 +43,7 @@ function formattedDate(d) {
 	if (month.length < 2) month = `0${month}`;
 	if (day.length < 2) day = `0${day}`;
 
-	return `${day}/${month}/${year}`;
+	return `${day}-${month}-${year}`;
 }
 
 module.exports = mongoose.model('Waitlist', waitlistSchema);

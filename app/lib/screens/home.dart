@@ -1,5 +1,5 @@
 import 'package:app/components/calendar.dart';
-import 'package:app/components/waitlist.dart';
+import 'package:app/components/listPad.dart';
 
 import 'package:flutter/material.dart';
 

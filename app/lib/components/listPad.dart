@@ -1,4 +1,7 @@
+import 'package:app/models/data/waitlists.dart';
+import 'package:app/models/date.dart';
 import 'package:app/models/services.dart';
+import 'package:app/service/data/waitlists.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,15 +15,17 @@ class ListPad extends StatefulWidget {
 class _ListPadState extends State<ListPad> {
   bool _check = false;
 
-  String _input = "";
+  String _name = "";
+  String? _service = "";
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  List<String> _todo = [
-    'Chore 1',
-    'Chore 2',
-    'Choreas 3',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    final waitlistData = Provider.of<WaitlistsData>(context, listen: false);
+    waitlistData.getWaitlistsData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +37,6 @@ class _ListPadState extends State<ListPad> {
       maintainBottomViewPadding: true,
       child: Container(
         padding: const EdgeInsets.only(left: 10, right: 10, bottom: 0),
-        key: Key('assd'),
         child: Scaffold(
           floatingActionButton: _addButton(context, services),
           body: _mainBody(),
@@ -42,6 +46,12 @@ class _ListPadState extends State<ListPad> {
   }
 
   Widget _mainBody() {
+    final date = Provider.of<DateModel>(context);
+    final waitlistData = Provider.of<WaitlistsData>(context);
+    final waitlist = waitlistData.waitlistsModel?.waitlists.firstWhere(
+      (waitlist) => waitlist.date == date.getFormatted(),
+      orElse: () => null,
+    );
     return Container(
       padding: const EdgeInsets.all(5),
       clipBehavior: Clip.hardEdge,
@@ -60,58 +70,89 @@ class _ListPadState extends State<ListPad> {
           ),
         ],
       ),
-      child: _todo.isNotEmpty
-          ? ReorderableListView(
-              scrollController: _scrollController,
-              buildDefaultDragHandles: false,
-              scrollDirection: Axis.vertical,
-              onReorder: _onReorder,
-              proxyDecorator: _proxyDecorator,
-              children: _todo
-                  .asMap()
-                  .map((i, item) => MapEntry(i, _cardGenerator(item, i)))
-                  .values
-                  .toList(),
-            )
-          : Center(
+      child: waitlistData.loading ||
+              waitlist == null ||
+              waitlist.entries.length == 0
+          ? Center(
               child: Text(
-                'Waitlist Empty'.toUpperCase(),
+                (waitlistData.loading ? 'Loading' : "Waitlist Empty")
+                    .toUpperCase(),
                 style: TextStyle(
                   color: Theme.of(context).secondaryHeaderColor,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-            ),
+            )
+          : waitlistData.initialized
+              ? ReorderableListView(
+                  key: Key(date.getFormatted()),
+                  scrollController: _scrollController,
+                  buildDefaultDragHandles: false,
+                  scrollDirection: Axis.vertical,
+                  onReorder: _onReorder,
+                  proxyDecorator: _proxyDecorator,
+                  children: waitlist.entries
+                      .map<Widget>((item) => _cardGenerator(item))
+                      .toList(),
+                )
+              : null,
     );
   }
 
   void _updateInputData(String input) {
     setState(() {
-      _input = input.trim();
+      _name = input.trim();
+    });
+  }
+
+  void _updateServiceSelection(String? selection) {
+    setState(() {
+      _service = selection?.trim();
     });
   }
 
   void _addToList() async {
-    if (_input != "") {
+    var isServiceSelected = _service?.isNotEmpty;
+    if (_name.isNotEmpty && isServiceSelected!) {
+      final date = Provider.of<DateModel>(context, listen: false);
+      final waitlistData = Provider.of<WaitlistsData>(context, listen: false);
+      final Entry entry = Entry(
+        idx: waitlistData.waitlistsModel!.newIndex(date.getFormatted()),
+        name: _name,
+        service: _service,
+        completed: false,
+      );
+      print(entry.toJson());
+      waitlistData.insertWaitlistEntry(date.getFormatted(), entry);
       setState(() {
-        int newIndex = _todo.length;
-        _todo.insert(newIndex, _input);
+        _service = "";
         _inputController.text = "";
       });
-      Future.delayed(const Duration(milliseconds: 300), () {
-        _scrollDown();
-      });
+
+      Navigator.pop(context);
+      if (entry.idx > 0) {
+        Future.delayed(const Duration(milliseconds: 300), () {
+          _scrollDown();
+        });
+      }
     }
   }
 
+  void _removeFromList(Entry entry) async {
+    final date = Provider.of<DateModel>(context, listen: false);
+    final waitlistData = Provider.of<WaitlistsData>(context, listen: false);
+    print(entry.toJson());
+    waitlistData.removeWaitlistEntry(date.getFormatted(), entry);
+  }
+
   void _onReorder(int oldIndex, int newIndex) {
-    setState(() {
-      if (oldIndex < newIndex) {
-        newIndex -= 1;
-      }
-      final String todo = _todo.removeAt(oldIndex);
-      _todo.insert(newIndex, todo);
-    });
+    // setState(() {
+    //   if (oldIndex < newIndex) {
+    //     newIndex -= 1;
+    //   }
+    //   final String todo = _todo.removeAt(oldIndex);
+    //   _todo.insert(newIndex, todo);
+    // });
   }
 
   Widget _addButton(BuildContext context, List<String> services) {
@@ -173,11 +214,8 @@ class _ListPadState extends State<ListPad> {
                     child: TextField(
                       autofocus: true,
                       controller: _inputController,
-                      textInputAction: TextInputAction.unspecified,
+                      textInputAction: TextInputAction.next,
                       onChanged: _updateInputData,
-                      onSubmitted: (input) {
-                        _addToList();
-                      },
                       decoration: const InputDecoration(
                         contentPadding: EdgeInsets.symmetric(horizontal: 20),
                         border: OutlineInputBorder(
@@ -190,8 +228,6 @@ class _ListPadState extends State<ListPad> {
                   ),
                   const SizedBox(height: 10),
                   DropdownButtonFormField(
-                    // Initial Value
-                    // value: _todo[1],
                     decoration: const InputDecoration(
                       contentPadding: EdgeInsets.symmetric(horizontal: 20),
                       border: OutlineInputBorder(
@@ -200,25 +236,15 @@ class _ListPadState extends State<ListPad> {
                       ),
                       hintText: namePlaceHolderText,
                     ),
-                    // Down Arrow Icon
                     icon: const Icon(Icons.keyboard_arrow_down),
-
-                    // Array list of items
                     items: services.map((String items) {
                       return DropdownMenuItem(
                         value: items,
                         child: Text(items),
                       );
                     }).toList(),
-                    // After selecting the desired option,it will
-                    // change button value to selected value
-                    onChanged: (String? newValue) {
-                      // setState(() {
-                      //   dropdownvalue = newValue!;
-                      // });
-                    },
+                    onChanged: _updateServiceSelection,
                     isExpanded: true,
-                    // underline: false,
                     hint: const Text(servicePlaceHolderText),
                   ),
                   const SizedBox(height: 20),
@@ -243,7 +269,7 @@ class _ListPadState extends State<ListPad> {
                             primary: Theme.of(context).primaryColor,
                             padding: buttonStyle,
                           ),
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () => _addToList(),
                           child: const Text('Add'),
                         ),
                       )
@@ -258,62 +284,9 @@ class _ListPadState extends State<ListPad> {
     );
   }
 
-  // Widget _inputBar(BuildContext context) {
-  //   return Positioned(
-  //     bottom: 0,
-  //     child: Padding(
-  //       padding: const EdgeInsets.only(top: 10),
-  //       child: Row(
-  //         children: [
-  //           Expanded(
-  //             child: Container(
-  //               margin: const EdgeInsets.only(right: 10),
-  //               alignment: Alignment.bottomCenter,
-  //               padding: const EdgeInsets.symmetric(horizontal: 4),
-  //               // decoration: const BoxDecoration(color: Colors.red),
-  //               child: TextField(
-  //                 controller: _inputController,
-  //                 textInputAction: TextInputAction.unspecified,
-  //                 onChanged: _updateInputData,
-  //                 onSubmitted: (input) {
-  //                   _addToList();
-  //                 },
-  //                 decoration: InputDecoration(
-  //                   contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-  //                   border: const OutlineInputBorder(
-  //                     borderRadius: BorderRadius.all(Radius.circular(1000)),
-  //                     gapPadding: 4.0,
-  //                   ),
-  //                   hintText: _inputPlaceHolderText,
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-  //           Container(
-  //             margin: const EdgeInsets.only(right: 5),
-  //             child: ElevatedButton(
-  //               style: ElevatedButton.styleFrom(
-  //                 primary: Colors.red.withAlpha(200),
-  //                 minimumSize: const Size(50, 50),
-  //                 padding: const EdgeInsets.symmetric(horizontal: 5),
-  //                 shape: const RoundedRectangleBorder(
-  //                   borderRadius: BorderRadius.all(Radius.circular(1000)),
-  //                 ),
-  //               ),
-  //               onPressed: _addToList,
-  //               child: const Icon(Icons.add),
-  //             ),
-  //           )
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
   Widget _proxyDecorator(Widget child, int index, Animation<double> animation) {
     return Container(
       decoration: BoxDecoration(
-        // color: Color(0xFF333A47),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -334,16 +307,13 @@ class _ListPadState extends State<ListPad> {
     );
   }
 
-  Widget _cardGenerator(String item, int index) {
-    var index = _todo.indexOf(item);
+  Widget _cardGenerator(Entry item) {
+    // var index = _todo.indexOf(item);
+    int idx = item.idx;
     return Dismissible(
       direction: DismissDirection.endToStart,
-      key: Key(item),
-      onDismissed: (direction) {
-        setState(() {
-          _todo.removeAt(index);
-        });
-      },
+      key: Key("$idx"),
+      onDismissed: (direction) => _removeFromList(item),
       background: Container(
         alignment: Alignment.centerRight,
         // color: Colors.grey.withOpacity(0.1),
@@ -357,18 +327,16 @@ class _ListPadState extends State<ListPad> {
         ),
       ),
       child: Container(
-        key: Key('$index'),
-        // margin: const EdgeInsets.only(bottom: 15),
+        key: Key("$idx"),
         child: Card(
           elevation: 1,
-          // margin: EdgeInsets.only(bottom: 10),
           borderOnForeground: false,
           child: Container(
             padding: const EdgeInsets.all(15),
             child: Row(
               children: [
                 ReorderableDragStartListener(
-                  index: index,
+                  index: idx,
                   child: Icon(
                     Icons.drag_indicator,
                     color: Colors.red.withOpacity(0.5),
@@ -379,19 +347,16 @@ class _ListPadState extends State<ListPad> {
                   child: Checkbox(
                     value: _check,
                     onChanged: (bool? newValue) {
-                      setState(() {
-                        _check = newValue!;
-                      });
+                      // setState(() {
+                      //   _check = newValue!;
+                      // });
                     },
                   ),
                 ),
                 Expanded(
                   child: GestureDetector(
                     onTap: () {},
-                    child: Container(
-                      // margin: const EdgeInsets.only(left: 0),
-                      child: Text(item),
-                    ),
+                    child: Text(item.name),
                   ),
                 ),
                 Icon(

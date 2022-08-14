@@ -2,19 +2,20 @@ const Waitlist = require('../models/waitlistModel');
 const { ObjectID } = require('mongodb');
 
 const getWaitlist = async (req, res, next) => {
-    const date = req.params.date.replaceAll('-', '/')
+    const date = req.params.date
     const waitlist = await Waitlist.findOne({ date })
-    return { req, res, next, waitlist }
+    return { req, res, next, waitlist, date }
 }
 
 exports.create = async (...params) => {
-    const { req, res, next, waitlist } = await getWaitlist(...params)
+    let { req, res, next, waitlist, date } = await getWaitlist(...params)
     try {
         const data = req.body
-        if (!waitlist) waitlist = await Waitlist.create({})
-        const result = await Waitlist.update(
+        if (!waitlist) waitlist = await Waitlist.create({ date })
+        const result = await Waitlist.findOneAndUpdate(
             { _id: waitlist._id },
             { $push: { "entries": data } },
+            { new: true, runValidators: true }
         );
         return res.json(result);
     } catch (err) {
