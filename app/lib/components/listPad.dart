@@ -13,14 +13,19 @@ class ListPad extends StatefulWidget {
 }
 
 class _ListPadState extends State<ListPad> {
+  // States for Add form
   String _name = "";
   String? _service = "";
   final TextEditingController _inputController = TextEditingController();
+
+  // Sroll controller for the reorderlist view
   final ScrollController _scrollController = ScrollController();
 
+  // Store ids of dismissed / removed cards
   List dismissedIds = <String>[];
 
   @override
+  // Call server to fetch all data
   void initState() {
     super.initState();
     final waitlistData = Provider.of<WaitlistsData>(context, listen: false);
@@ -45,6 +50,7 @@ class _ListPadState extends State<ListPad> {
     );
   }
 
+  // Scroll down to the last item when cards exceed the container height
   void _scrollDown() {
     _scrollController.animateTo(
       _scrollController.position.maxScrollExtent,
@@ -53,18 +59,21 @@ class _ListPadState extends State<ListPad> {
     );
   }
 
+  // Update name field on state change in the add form
   void _updateInputData(String input) {
     setState(() {
       _name = input.trim();
     });
   }
 
+  // Update service field on state change in the add form
   void _updateServiceSelection(String? selection) {
     setState(() {
       _service = selection?.trim();
     });
   }
 
+  // Add a new item in the current waitlist
   void _addToList() async {
     var isServiceSelected = _service?.isNotEmpty;
     if (_name.isNotEmpty && isServiceSelected!) {
@@ -76,7 +85,6 @@ class _ListPadState extends State<ListPad> {
         service: _service,
         completed: false,
       );
-      print(entry.toJson());
       waitlistData.insertWaitlistEntry(date.getFormatted(), entry);
       setState(() {
         _service = "";
@@ -92,13 +100,13 @@ class _ListPadState extends State<ListPad> {
     }
   }
 
+  // Remove an item when swiped left from the current waitlist
   void _removeFromList(Entry entry) async {
     setState(() {
       dismissedIds.add(entry.id);
     });
     final date = Provider.of<DateModel>(context, listen: false);
     final waitlistData = Provider.of<WaitlistsData>(context, listen: false);
-    // print(entry.toJson());
     waitlistData.removeWaitlistEntry(date.getFormatted(), entry);
   }
 
@@ -106,10 +114,10 @@ class _ListPadState extends State<ListPad> {
     final date = Provider.of<DateModel>(context, listen: false);
     final waitlistData = Provider.of<WaitlistsData>(context, listen: false);
     entry.setCompleted(status);
-    print(entry.toJson());
     waitlistData.updateWaitlistEntry(date.getFormatted(), entry);
   }
 
+  // Reorder items in the waitlist
   void _onReorder(int oldIndex, int newIndex) {
     final date = Provider.of<DateModel>(context, listen: false).getFormatted();
     final waitlistData = Provider.of<WaitlistsData>(context, listen: false);
@@ -120,6 +128,7 @@ class _ListPadState extends State<ListPad> {
     waitlistData.reorderWaitlistEntry(date, orderedWaitlist);
   }
 
+  // Open add form
   void _openInsertModal(BuildContext context, List<String> services) {
     const String title = 'Add to Waitlist';
     const String namePlaceHolderText = "Enter client's name";
@@ -238,6 +247,7 @@ class _ListPadState extends State<ListPad> {
     );
   }
 
+  // Floating add action button
   Widget _addButton(BuildContext context, List<String> services) {
     return FloatingActionButton(
       onPressed: () => _openInsertModal(context, services),
@@ -249,6 +259,7 @@ class _ListPadState extends State<ListPad> {
     );
   }
 
+  // Decorator for when a card is being dragged to a diiferent position
   Widget _proxyDecorator(Widget child, int index, Animation<double> animation) {
     return Container(
       decoration: BoxDecoration(
@@ -264,6 +275,7 @@ class _ListPadState extends State<ListPad> {
     );
   }
 
+  // Main widget to render the waitilist
   Widget _mainBody() {
     final date = Provider.of<DateModel>(context).getFormatted();
     final waitlistData = Provider.of<WaitlistsData>(context);
@@ -318,9 +330,8 @@ class _ListPadState extends State<ListPad> {
     );
   }
 
+  // Single card widget for the waitlist
   Widget _cardGenerator(Entry item) {
-    // var index = _todo.indexOf(item);
-    print(item.id);
     int idx = item.idx;
     return Dismissible(
       direction: DismissDirection.endToStart,
@@ -367,15 +378,7 @@ class _ListPadState extends State<ListPad> {
                 Expanded(
                   child: GestureDetector(
                     onTap: () {},
-                    child: Column(children: [
-                      Text("${item.idx} ${item.name}"),
-                      Text("${item.id}",
-                          textAlign: TextAlign.left,
-                          style: TextStyle(
-                            color: Theme.of(context).hintColor,
-                            fontSize: 10,
-                          )),
-                    ]),
+                    child: Text("${item.name} • ${item.service}"),
                   ),
                 ),
                 Icon(
