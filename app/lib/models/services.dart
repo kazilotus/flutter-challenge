@@ -26,7 +26,6 @@ class Service {
   final int id;
   final String name;
   final Color color;
-  final int price = 42;
 
   Service(this.id, this.name)
       : color = Colors.primaries[id % Colors.primaries.length];
