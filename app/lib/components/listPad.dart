@@ -18,6 +18,8 @@ class _ListPadState extends State<ListPad> {
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
+  List dismissedIds = <String>[];
+
   @override
   void initState() {
     super.initState();
@@ -91,6 +93,9 @@ class _ListPadState extends State<ListPad> {
   }
 
   void _removeFromList(Entry entry) async {
+    setState(() {
+      dismissedIds.add(entry.id);
+    });
     final date = Provider.of<DateModel>(context, listen: false);
     final waitlistData = Provider.of<WaitlistsData>(context, listen: false);
     // print(entry.toJson());
@@ -305,6 +310,7 @@ class _ListPadState extends State<ListPad> {
                       onReorder: _onReorder,
                       proxyDecorator: _proxyDecorator,
                       children: waitlist.entries
+                          .where((e) => !dismissedIds.contains(e.id))
                           .map<Widget>((item) => _cardGenerator(item))
                           .toList(),
                     )
