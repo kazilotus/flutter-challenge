@@ -5,32 +5,32 @@ Mock Puppy Spa Reciptionist App built using Flutter + Express.js + MongoDB
 # Structure
 
 ```
-|- app - Flutter App
-| |- lib
-|   |- common - Common config
-|   |- components - Reusable components
-|   |- models - Models of the main data classes used
-|   |- screens - Main screens the user will go thorugh
-|   |- service - Definitions for API calls
-|   |- main.dart
-| |- .env
-| |- pubspec.yaml
-| |- * default folders *
+├── app - Flutter App
+|   ├── lib
+|       ├── common - Common config
+|       ├── components - Reusable components
+|       ├── models - Models of the main data classes used
+|       ├── screens - Main screens the user will go thorugh
+|       ├── service - Definitions for API calls
+|       ├── main.dart
+|   ├── .env
+|   ├── pubspec.yaml
+|   ├── * default folders *
 |
-|- server - Express.js Server Backend
-| |- app
-|   |- controllers - Main Server logic to serve data to the API response
-|   |- helpers - Helper functions
-|   |- models - MongoDB Schemas
-|   |- routes - All api endpoints/routes
-| |- config
-|   |- config.js - .env config import
-|   |- express.js - express.js server
-|   |- logger.js - global logger
-| |- .env
-| |- docker-compose.yml
-| |- index.js
-| |- package.json
+├── server - Express.js Server Backend
+|   ├── app
+|       ├── controllers - Main Server logic to serve data to the API response
+|       ├── helpers - Helper functions
+|       ├── models - MongoDB Schemas
+|       ├── routes - All api endpoints/routes
+|   ├── config
+|       ├── config.js - .env config import
+|       ├── express.js - express.js server
+|   ├── logger.js - global logger
+|   ├── .env
+|   ├── docker-compose.yml
+|   ├── index.js
+|   ├── package.json
 ```
 
 # Screenshots
