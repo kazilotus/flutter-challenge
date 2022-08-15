@@ -1,34 +1,61 @@
-### Project structure
+## MonogDB Schema Structure
 
 ```
-├── app
-│   ├── helpers
-│   ├── routes
-│   ├── tests
-|   |    ├── waitlists
-│   ├── waitlists
-├── config
-├── .env
-├── .eslintrc
-├── .gitignore
-├── index.js
-├── package.json
-├── README.md
+entry:
+  idx: Number                 # Order in list of the Client
+  name: String                # Name of the Client
+  service: String             # Service that client requires
+  completed: Boolean          # Whether the service has been completed
+  
+waitlist:
+  date: String                # Date of the document associated
+  entries: [ entry: Entry ]   # Array of all the entries made in a day
 ```
-## Modules
-* [express](https://www.npmjs.com/package/express)
-* [bcrypt](https://www.npmjs.com/package/bcrypt)
-* [winston](https://www.npmjs.com/package/winston)
-* [dotenv](https://www.npmjs.com/package/dotenv)
 
-## Running Locally
-```sh
-# development
-npm run dev
+## API Endpoints and Request Data Structures
 
-# production
-npm run prod
+### Waitlist
 
-# test
-npm run test
+`GET     /waitlists`
+
+`PATCH   /waitlist/:date`
 ```
+{
+    "date": "15-08-2022",
+    "entries": [
+        {
+            
+            "_id": "62f8ff5492b58c22e2c25671",
+            "idx": 0,
+            "name": "Golden",
+            "completed": false,
+            "service": "Teeth Brushing"
+            
+        }
+    ]
+}
+```
+
+### Entry
+
+`POST    /entry/:date`
+```
+{
+    "idx": 12,
+    "name": "Max",
+    "service": "Grooming",
+    "completed": false
+}
+```
+
+`PATCH   /entry/:date/:id`
+```
+{
+    "idx": 12,
+    "name": "Max",
+    "service": "Grooming",
+    "completed": true
+}
+```
+
+`DELETE   /entry/:date/:id`
