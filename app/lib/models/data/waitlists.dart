@@ -102,17 +102,6 @@ class WaitlistsDataModel {
     }
     waitlists.removeWhere((w) => w.date == wl.date);
     waitlists.add(wl);
-    waitlist.cleanIdx();
-  }
-
-  void remove(String date, Entry entry) {
-    var waitlist = waitlists.firstWhere(
-      (element) => element.date == date,
-      orElse: () => Waitlist(date: date, entries: []),
-    );
-    waitlist.entries
-        .removeWhere((item) => item.id == entry.id || item.idx == entry.idx);
-    waitlist.cleanIdx();
   }
 
   int newIndex(String date) {
