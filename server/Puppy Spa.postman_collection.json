@@ -1,0 +1,131 @@
+{
+	"info": {
+		"_postman_id": "bca648f5-1425-448c-974d-f00cb93f78c7",
+		"name": "Puppy Spa",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "List",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Create",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Max\",\n    \"service\": \"Grooming\",\n    \"completed\": false\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/entry/13-08-2022",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"entry",
+						"13-08-2022"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Entry",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"idx\": 10,\n    \"name\": \"Max\",\n    \"service\": \"Grooming\",\n    \"completed\": true\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/entry/14-08-2022/62f9008d92b58c22e2c25674",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"entry",
+						"14-08-2022",
+						"62f9008d92b58c22e2c25674"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Max\",\n    \"service\": \"Grooming\",\n    \"completed\": false\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/entry/13-08-2022/62f80e28176ecbb8a6c8890c",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"entry",
+						"13-08-2022",
+						"62f80e28176ecbb8a6c8890c"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Waitlist",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"date\": \"14-08-2022\",\n    \"entries\": [\n        {\n            \"name\": \"Golden\",\n            \"_id\": \"62f8ff5492b58c22e2c25671\",\n            \"completed\": false,\n            \"service\": \"Teeth Brushing\",\n            \"idx\": 0\n        },\n        {\n            \"name\": \"Yello\",\n            \"_id\": \"62f9008192b58c22e2c25672\",\n            \"completed\": true,\n            \"service\": \"Teeth Brushing\",\n            \"idx\": 1\n        },\n        {\n            \"name\": \"Red\",\n            \"_id\": \"62f9008992b58c22e2c25673\",\n            \"completed\": false,\n            \"service\": \"Self Wash Tubs\",\n            \"idx\": 2\n        },\n        {\n            \"name\": \"Blue\",\n            \"_id\": \"62f9008d92b58c22e2c25674\",\n            \"completed\": true,\n            \"service\": \"Grooming\",\n            \"idx\": 3\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/waitlist/14-08-2022",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"waitlist",
+						"14-08-2022"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
