@@ -37,7 +37,13 @@ exports.removeById = async (...params) => {
             { $pull: { "entries": { "_id": ObjectID(id) } } },
             { new: true, runValidators: true }
         );
-        wl.entries = wl.entries.sort((a,b) => a.idx - b.idx)
+        wl.entries = wl.entries.sort((a,b) => a.idx - b.idx).map((entry, index) => {
+            const { _id, idx, name, service, completed } = entry
+            return {
+                _id, name, service, completed,
+                idx: index,
+            }
+        })
 		if (!wl) {
 			return next();
 		}
