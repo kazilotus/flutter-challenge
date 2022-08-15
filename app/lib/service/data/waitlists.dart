@@ -22,7 +22,6 @@ class WaitlistsData extends ChangeNotifier {
   }
 
   removeWaitlistEntry(String date, Entry entry) async {
-    // waitlistsModel!.remove(date, entry);
     Waitlist wl = (await deleteWaitlistEntry(date, entry))!;
     waitlistsModel!.updateWaitlist(wl);
     notifyListeners();
